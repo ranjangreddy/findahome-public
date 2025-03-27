@@ -6,12 +6,20 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
-
 model User {
-  id       Int     @id @default(autoincrement())
-  username String  @unique
-  password String
-  items    Item[]
+  id                 Int      @id @default(autoincrement())
+  firstName          String
+  lastName           String
+  email              String   @unique  // ✅ this is the key fix
+  password           String
+  contactNumber      String
+  role               String
+  profileImage       String?
+  dateCreated        DateTime @default(now())
+  lastLogin          DateTime?
+  verificationStatus Boolean  @default(false)
+
+  items              Item[]
 }
 
 model Item {

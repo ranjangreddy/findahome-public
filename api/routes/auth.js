@@ -14,27 +14,33 @@ const cookieOptions = {
 
 // REGISTER
 router.post('/register', async (req, res) => {
-  const { email, password, firstName, lastName, contactNumber, role } = req.body;
-  try {
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) return res.status(400).json({ error: 'User already exists' });
-
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password,
-        firstName,
-        lastName,
-        contactNumber,
-        role,
-      },
-    });
-
-    res.json({ message: 'User registered', user });
-  } catch (err) {
-    res.status(500).json({ error: 'Registration failed' });
-  }
-});
+    const { email, password, firstName, lastName, contactNumber, role } = req.body;
+  
+    try {
+      const existingUser = await prisma.user.findUnique({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({ error: 'User already exists' });
+      }
+  
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          password,
+          firstName,
+          lastName,
+          contactNumber,
+          role,
+          dateCreated: new Date(),
+        },
+      });
+  
+      res.status(201).json({ message: 'User registered', user: newUser });
+    } catch (err) {
+      console.error('❌ Registration error:', err); // Add this!
+      res.status(500).json({ error: 'Registration failed' });
+    }
+  });
+  
 
 // LOGIN
 router.post('/login', async (req, res) => {
