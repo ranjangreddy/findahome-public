@@ -6,7 +6,7 @@ import styles from './PostProperty.module.css';
 type Step = 'details' | 'amenities' | 'photos' | 'pricing';
 
 interface PropertyForm {
-  name: string;
+  title: string;
   type: string;
   location: string;
   description: string;
@@ -22,7 +22,7 @@ function PostProperty() {
   const [currentStep, setCurrentStep] = useState<Step>('details');
   const [progress, setProgress] = useState(25);
   const [form, setForm] = useState<PropertyForm>({
-    name: '',
+    title: '',
     type: '',
     location: '',
     description: '',
@@ -83,14 +83,14 @@ function PostProperty() {
             <div className={styles.inputGroup}>
               <label className={styles.label}>
                 <Home className={styles.inputIcon} />
-                Property Name
+                Property Title
               </label>
               <input
                 type="text"
-                value={form.name}
-                onChange={e => setForm(prev => ({ ...prev, name: e.target.value }))}
+                value={form.title}
+                onChange={e => setForm(prev => ({ ...prev, title: e.target.value }))}
                 className={styles.input}
-                placeholder="Enter property name"
+                placeholder="Enter property title"
               />
             </div>
 
@@ -244,7 +244,7 @@ function PostProperty() {
     <div className={styles.container}>
       <div className={styles.formCard}>
         <div className={styles.progressBar}>
-          <div 
+          <div
             className={styles.progressFill}
             style={{ width: `${progress}%` }}
           />

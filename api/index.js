@@ -4,10 +4,15 @@ import authRoutes from './routes/auth.js';
 import requireAuth from './middleware/requireAuth.js';
 import propertyRoutes from './routes/property.js';
 import { PrismaClient } from '@prisma/client';
+import cors from 'cors';
 
 const app = express();
 const prisma = new PrismaClient();
 const PORT = 3000;
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true, // needed to allow cookies
+}));
 
 app.use(express.json());
 app.use(cookieParser());

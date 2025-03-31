@@ -11,39 +11,33 @@ import styles from './components/Login.module.css';
 // Create auth context
 interface AuthContextType {
   isAuthenticated: boolean;
-  login: (username: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
-  login: () => false,
+  login: async () => false,
   logout: () => {},
 });
 
 export const useAuth = () => useContext(AuthContext);
 
-// Dummy credentials
-const DUMMY_CREDENTIALS = {
-  username: 'user123',
-  password: 'password123'
-};
-
 function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const auth = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const success = auth.login(username, password);
-    
+    const success = await auth.login(email, password);
+
     if (success) {
       navigate('/');
     } else {
-      setError('Invalid credentials. Use username: user123, password: password123');
+      setError('Invalid credentials. Please try again.');
     }
   };
 
@@ -63,11 +57,12 @@ function Login() {
           <div className={styles.inputGroup}>
             <User className={styles.icon} />
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Username"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Email"
               className={styles.input}
+              required
             />
           </div>
 
@@ -79,6 +74,7 @@ function Login() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               className={styles.input}
+              required
             />
           </div>
 
@@ -97,7 +93,11 @@ function Login() {
 
         <div className={styles.socialButtons}>
           <button className={styles.socialButton}>
-            <img src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png" alt="Google" />
+            <img
+              src="https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
+              alt="Google"
+              style={{ height: '24px' }}
+            />
           </button>
           <button className={styles.socialButton}>
             <Facebook color="#1877F2" />
@@ -108,15 +108,14 @@ function Login() {
         </div>
 
         <p className={styles.signupLink}>
-          New User?{' '}
-          <Link to="/signup">Create a new account</Link>
+          New User? <Link to="/signup">Create a new account</Link>
         </p>
       </div>
     </div>
   );
 }
 
-// Auth guard component
+// 🔒 Auth guard
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const auth = useAuth();
 
@@ -127,19 +126,33 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// ✅ Updated AuthProvider with real API integration
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const login = (username: string, password: string) => {
-    if (username === DUMMY_CREDENTIALS.username && password === DUMMY_CREDENTIALS.password) {
+  const login = async (email: string, password: string) => {
+    try {
+      const res = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) return false;
+
+      const data = await res.json();
       setIsAuthenticated(true);
       return true;
+    } catch (err) {
+      console.error('Login error:', err);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
+    // Optional: Call a backend logout endpoint to clear the cookie
   };
 
   return (
