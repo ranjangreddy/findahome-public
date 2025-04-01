@@ -70,9 +70,13 @@ function Home() {
     setShowDropdown(!showDropdown);
   };
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logout(); // Call the logout function from AuthContext
+      navigate('/login'); // Redirect to the login page
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (

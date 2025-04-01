@@ -150,9 +150,22 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    // Optional: Call a backend logout endpoint to clear the cookie
+  const logout = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+      });
+  
+      if (res.ok) {
+        setIsAuthenticated(false); // Set isAuthenticated to false
+      } else {
+        console.error('Logout failed');
+      }
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
   };
 
   return (
